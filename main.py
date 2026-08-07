@@ -15,4 +15,17 @@ try:
     )
 except:
     raise Exception ("cannot connect to API provider")
-    
+
+messages = [
+    {
+        "role": "user",
+        "content": "Why is Boot.dev such a great place to learn backend development? Use one paragraph maximum.",
+    }
+]
+
+response = client.chat.completions.create(
+  model="openrouter/free",
+  messages=messages
+)
+
+print(response.choices[0].message.content)
