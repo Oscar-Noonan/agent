@@ -23,9 +23,12 @@ messages = [
     }
 ]
 
-response = client.chat.completions.create(
-  model="openrouter/free",
-  messages=messages
-)
+try:
+    response = client.chat.completions.create(
+    model="openrouter/free",
+    messages=messages
+    )
+except:
+    raise Exception ("error when calling openai client.chat.completions.create")
 
 print(response.choices[0].message.content)
