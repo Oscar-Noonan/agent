@@ -1,6 +1,9 @@
-def main():
-    print("Hello from agent!")
+import os
+from dotenv import load_dotenv
+from openai import OpenAI
 
-
-if __name__ == "__main__":
-    main()
+load_dotenv()
+try:
+    api_key = os.environ.get("OPENROUTER_API_KEY")
+except:
+    raise Exception("environment variable not found")
