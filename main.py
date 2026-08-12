@@ -1,8 +1,21 @@
 import os
+import argparse
 from dotenv import load_dotenv
 from openai import OpenAI
 
+
+
+try:
+    parser = argparse.ArgumentParser(description="Agent")
+    parser.add_argument("user_prompt", type=str, nargs="?", default="Oops looks like I forgot to input my prompt!", help="User prompt")
+    args = parser.parse_args()
+except:
+    raise Exception("error parsing args")
+
+
+
 load_dotenv()
+
 try:
     api_key = os.environ.get("OPENROUTER_API_KEY")
 except:
@@ -16,10 +29,12 @@ try:
 except:
     raise Exception ("cannot connect to API provider")
 
+
+
 messages = [
     {
         "role": "user",
-        "content": "Why is Boot.dev such a great place to learn backend development? Use one paragraph maximum.",
+        "content": args.user_prompt,
     }
 ]
 
@@ -31,4 +46,10 @@ try:
 except:
     raise Exception ("error when calling openai client.chat.completions.create")
 
-print(response.choices[0].message.content)
+print("User prompt: ", messages[0]["content"])
+
+print("Prompt tokens: ", response.usage.prompt_tokens)
+
+print("Response tokens: ", response.usage.completion_tokens)
+
+print("Response: ", response.choices[0].message.content)
