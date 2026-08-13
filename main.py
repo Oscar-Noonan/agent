@@ -10,8 +10,8 @@ try:
     parser.add_argument("user_prompt", type=str, nargs="?", default="Oops looks like I forgot to input my prompt!", help="User prompt")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
-except:
-    raise Exception("error parsing args")
+except Exception as e:
+    return f"Error: {e}"
 
 
 
@@ -19,16 +19,16 @@ load_dotenv()
 
 try:
     api_key = os.environ.get("OPENROUTER_API_KEY")
-except:
-    raise Exception("environment variable not found")
+except Exception as e:
+    return f"Error: {e}"
 
 try:
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
         api_key=api_key,
     )
-except:
-    raise Exception ("cannot connect to API provider")
+except Exception as e:
+    return f"Error: {e}"
 
 
 
@@ -44,8 +44,8 @@ try:
     model="openrouter/free",
     messages=messages
     )
-except:
-    raise Exception ("error when calling openai client.chat.completions.create")
+except Exception as e:
+    return f"Error: {e}"
 
 if args.verbose:
     print("User prompt: ", messages[0]["content"])
