@@ -29,6 +29,8 @@ def get_files_info(working_directory: str, directory: str = ".") -> str:
     except Exception as e:
         return f"Error: Cannot get file info: {e}"
 
+
+
 schema_get_files_info = {
     "type": "function",
     "function": {
