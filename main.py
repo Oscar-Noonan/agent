@@ -21,19 +21,15 @@ except Exception as e:
 
 load_dotenv()
 
-try:
-    api_key = os.environ.get("OPENROUTER_API_KEY")
-except Exception as e:
-    raise f"Error: {e}"
+api_key = os.environ.get("OPENROUTER_API_KEY")
+if not api_key:
+    raise ValueError(f"Error: {e}")
 
-try:
-    client = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=api_key,
-    )
-except Exception as e:
-    raise f"Error: {e}"
 
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=api_key,
+)
 
 
 messages = [
@@ -41,27 +37,44 @@ messages = [
     {"role": "user","content": args.user_prompt},
 ]
 
-try:
-    response = client.chat.completions.create(
-    model="openrouter/free",
-    messages=messages,
-    tools=available_functions,
-    )
-except Exception as e:
-    raise f"Error: {e}"
 
-message = response.choices[0].message
+for _ in range(20):
+    try:
+        response = client.chat.completions.create(
+        model="openrouter/free",
+        messages=messages,
+        tools=available_functions,
+        )
+    except Exception as e:
+        raise RuntimeError(f"Error: {e}")
 
-if args.verbose:
-    print("User prompt: ", messages[0]["content"])
+    message = response.choices[0].message
+    messages.append(message)
 
-    print("Prompt tokens: ", response.usage.prompt_tokens)
 
-    print("Response tokens: ", response.usage.completion_tokens)
+    if args.verbose:
+        print("User prompt: ", messages[0]["content"])
 
-print("Response: ", message.content)
+        print("Prompt tokens: ", response.usage.prompt_tokens)
 
-for tool_call in message.tool_calls:
-    function_args = json.loads(tool_call.function.arguments or "{}")
-    print(f"Calling function: {tool_call.function.name}({function_args})")
-    result_message = call_function(tool_call, args.verbose)
+        print("Response tokens: ", response.usage.completion_tokens)
+
+    print("Response: ", message.content)
+
+
+
+    if not message.tool_calls:
+        print("No more tool calls. Exiting loop.")
+        break 
+
+
+    for tool_call in message.tool_calls or []:
+        function_args = json.loads(tool_call.function.arguments or "{}")
+
+        print(f"Calling function: {tool_call.function.name}({function_args})")
+
+        result_message = call_function(tool_call, args.verbose)
+
+        print(f"-> {result_message['content']}")
+    
+        messages.append(result_message)

@@ -20,7 +20,7 @@ available_functions = [
 
 def call_function(tool_call, verbose: bool = False) -> dict:
     function_name = tool_call.function.name
-    function_args = json.loads(tool_call.function.arguments or "{}")
+    function_args = json.loads(tool_call.function.arguments)
 
     if verbose:
         print(f" - Calling function: {function_name}({function_args})")
@@ -43,10 +43,10 @@ def call_function(tool_call, verbose: bool = False) -> dict:
     
     function_args["working_directory"] = "./calculator"
 
-    #try:
-    result = function_map[function_name](**function_args)
-    #except Exception as e:
-    result = f"Error executing {function_name}: {str(e)}"
+    try:
+        result = function_map[function_name](**function_args)
+    except Exception as e:
+        result = f"Error executing {function_name}: {str(e)}"
 
     return {
         "role": "tool",
